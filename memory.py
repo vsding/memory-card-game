@@ -6,19 +6,9 @@ HIDDEN_CARD = '#'
 QUIT = 'q'
 HINT = 'h'
 
-card_vals = []
-for i in range(65, 65 + (DIM*DIM) / 2):
-	card_vals.append(chr(i))
-	card_vals.append(chr(i))
-
-random.shuffle(card_vals)
-answer_board = []
-for i in range(DIM):
-	answer_board.append(list(card_vals[DIM * i : DIM * (i+1)]))
-current_board = [list(HIDDEN_CARD * DIM) for i in range(DIM)]
 game_won = False
 
-def display_board(*squares):
+def display_board(current_board, answer_board, *squares):
 	print('\n')
 	for row in range(DIM):
 		for col in range(DIM):
@@ -29,7 +19,7 @@ def display_board(*squares):
 		print('\n')
 
 
-def choose_card():
+def choose_card(current_board, answer_board):
 	print("\nType the row index and column index--separated by a space--of the card you want to flip")
 	row = None
 	col = None
@@ -38,17 +28,17 @@ def choose_card():
 		print("(Or type q to quit or h for a hint)")
 		input_str = raw_input()
 		if input_str == QUIT:
-			quit_game()
+			quit_game(answer_board)
 			return -1 
 		if input_str == HINT:
-			get_hint() 
+			get_hint(current_board, answer_board) 
 		try:
 			row, col = map(int, input_str.split())
 		except:
 			pass
 	return (row-1, col-1)
 
-def check_cards_match(card1, card2):
+def check_cards_match(card1, card2, current_board, answer_board):
 	x1, y1 = card1
 	x2, y2 = card2
 	if answer_board[x1][y1] == answer_board[x2][y2]:
@@ -59,7 +49,7 @@ def check_cards_match(card1, card2):
 		print("Not a match - try again!\n")
 
 
-def get_hint():
+def get_hint(current_board, answer_board):
 	hidden_cards = []
 	for row in range(DIM):
 		for col in range(DIM):
@@ -70,7 +60,7 @@ def get_hint():
 		" appears at row " + str(reveal_row+1) + ", column " + str(reveal_col+1) + ".\n")
 
 
-def quit_game():
+def quit_game(answer_board):
 	print("\nThe board was:\n")
 	for row in range(DIM):
 		for col in range(DIM):
@@ -79,18 +69,18 @@ def quit_game():
 	print("Good-bye!\n")
 
 
-def flip_cards():	
-	card1 = choose_card()
+def flip_cards(current_board, answer_board):	
+	card1 = choose_card(current_board, answer_board)
 	if card1 == -1: # quit
 		return False
-	display_board(card1)
+	display_board(current_board, answer_board, card1)
 
-	card2 = choose_card()
+	card2 = choose_card(current_board, answer_board)
 	if card2 == -1: # quit
 		return False
-	display_board(card1, card2)
+	display_board(current_board, answer_board, card1, card2)
 
-	check_cards_match(card1, card2)
+	check_cards_match(card1, card2, current_board, answer_board)
 
 	if any(HIDDEN_CARD in row for row in current_board): # cards remaining, keep playing
 		return True
@@ -111,11 +101,28 @@ def print_intro_rules():
 	print("- At any point in the game, enter q to quit or h for a hint ;)")
 
 
+def init_board():
+	card_vals = []
+	for i in range(65, 65 + (DIM*DIM) / 2):
+		card_vals.append(chr(i))
+		card_vals.append(chr(i))
+
+	random.shuffle(card_vals)
+	answer_board = []
+	for i in range(DIM):
+		answer_board.append(list(card_vals[DIM * i : DIM * (i+1)]))
+	current_board = [list(HIDDEN_CARD * DIM) for i in range(DIM)]
+
+	return current_board, answer_board
+
+
 def main():
+	current_board, answer_board = init_board()
+	game_won = False
 	num_turns = 0
 	print_intro_rules()
-	display_board()
-	while flip_cards():
+	display_board(current_board, answer_board)
+	while flip_cards(current_board, answer_board):
 		num_turns += 1
 		pass
 	global game_won
