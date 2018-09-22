@@ -1,4 +1,4 @@
-import random, sys
+import random, sys, time
 
 # Constants
 HIDDEN_CARD = '#'
@@ -9,17 +9,6 @@ MAX_DIMENSION = 10
 
 # Global var to keep track of whether game has been won
 game_won = False
-
-def display_board(current_board, answer_board, dim, *squares):
-	print('\n')
-	for row in range(dim):
-		for col in range(dim):
-			if (row, col) in squares:
-				print(answer_board[row][col]), 
-			else:
-				print(current_board[row][col]),
-		print('\n')
-
 
 def choose_card(current_board, answer_board, dim):
 	print("\nType the row index and column index--separated by a space--of the card you want to flip")
@@ -92,6 +81,16 @@ def flip_cards(current_board, answer_board, dim):
 		game_won = True
 
 
+def display_board(current_board, answer_board, dim, *squares):
+	print('\n')
+	for row in range(dim):
+		for col in range(dim):
+			if (row, col) in squares:
+				print(answer_board[row][col]), 
+			else:
+				print(current_board[row][col]),
+		print('\n')
+
 def print_intro_rules():
 	print("\n\n=================")
 	print("WELCOME TO MEMORY")
@@ -120,9 +119,10 @@ def init_board(dim):
 
 
 def prompt_dimension():
-	print("\n\nBEFORE WE BEGIN...")
+	print("\n\nBEFORE WE BEGIN... choose how large you want the board to be.")
 	print("\nThe game board is an n by n square.")
 	dimension = 0
+
 	while dimension < MIN_DIMENSION or dimension > MAX_DIMENSION or dimension % 2 != 0:
 		print("Enter an even number n between " + str(MIN_DIMENSION) + " and " \
 			+ str(MAX_DIMENSION) + ", inclusive:")
@@ -133,20 +133,24 @@ def prompt_dimension():
 			pass
 	return dimension
 
+
 def main():
 	print_intro_rules()
 	dimension = prompt_dimension()
 	current_board, answer_board = init_board(dimension)
-	game_won = False
 	num_turns = 0
+	start_time = time.time()
 	display_board(current_board, answer_board, dimension)
+	
 	while flip_cards(current_board, answer_board, dimension):
 		num_turns += 1
 		pass
+
 	global game_won
 	if game_won:
 		print("Congrats - you've completed the game!")
-		print("It took you " + str(num_turns+1) + " turns to match all the pairs.\n")
+		print("It took you " + str(num_turns+1) + " turns and " + \
+			str(round(time.time() - start_time)) + " seconds to match all the pairs.\n")
 
 
 if __name__ == '__main__':
