@@ -141,10 +141,9 @@ def main():
 	num_turns = 0
 	start_time = time.time()
 	display_board(current_board, answer_board, dimension)
-	
+
 	while flip_cards(current_board, answer_board, dimension):
 		num_turns += 1
-		pass
 
 	global game_won
 	if game_won:
