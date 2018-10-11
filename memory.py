@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+
+"""Plays the single-player card game, Memory.
+Player repeatedly flips over cards to find matching pairs.
+The game ends when all pairs are matched and revealed.
+"""
+
+__author__ = "Victoria Ding"
+__email__ = "vding1@stanford.edu"
+
 import random, sys, time
 
 # Constants
@@ -11,11 +21,15 @@ MAX_DIMENSION = 10
 game_won = False
 
 def choose_card(current_board, answer_board, dim):
-	print("\nType the row index and column index--separated by a space--of the card you want to flip")
+	""" Prompts player to choose a card to reveal.
+	Player types the row an column indices of card. Also option to quit or ask for a hint.
+	Returns row and column indices of the selected card.
+	"""
+	print("\nType the row index and column index--separated by a space--of the card you want to flip.")
 	row = None
 	col = None
 	while row not in range(1, dim+1) or col not in range(1, dim+1):
-		print("Enter integers between 1 and " + str(dim) + ":")
+		print("Enter two integers between 1 and " + str(dim) + ":")
 		print("(Or type q to quit or h for a hint)")
 		input_str = raw_input()
 		if input_str == QUIT:
@@ -31,6 +45,9 @@ def choose_card(current_board, answer_board, dim):
 
 
 def check_cards_match(card1, card2, current_board, answer_board):
+	""" Check if two cards have the same value.
+	Prints whether they match or not.
+	"""
 	x1, y1 = card1
 	x2, y2 = card2
 	if answer_board[x1][y1] == answer_board[x2][y2]:
@@ -42,6 +59,9 @@ def check_cards_match(card1, card2, current_board, answer_board):
 
 
 def get_hint(current_board, answer_board, dim):
+	""" Prints the row and column indices of a random hidden card 
+	when player requests a hint.
+	"""
 	hidden_cards = []
 	for row in range(dim):
 		for col in range(dim):
@@ -53,6 +73,9 @@ def get_hint(current_board, answer_board, dim):
 
 
 def quit_game(answer_board, dim):
+	""" Prints the full answer board and quits 
+	when player chooses to quit mid-game.
+	"""
 	print("\nThe board was:\n")
 	for row in range(dim):
 		for col in range(dim):
@@ -61,15 +84,24 @@ def quit_game(answer_board, dim):
 	print("Good-bye!\n")
 
 
-def flip_cards(current_board, answer_board, dim):	
+def flip_cards(current_board, answer_board, dim):
+	"""Plays one turn,
+	where player selects two cards and is given feedback on if they match.
+	"""	
 	card1 = choose_card(current_board, answer_board, dim)
 	if card1 == -1: # quit
 		return False
+
 	display_board(current_board, answer_board, dim, card1)
 
 	card2 = choose_card(current_board, answer_board, dim)
+	while card1 == card2: # player cannot choose the same card twice
+		print("\nA card cannot be matched with itself!")
+		card2 = choose_card(current_board, answer_board, dim)
+
 	if card2 == -1: # quit
 		return False
+
 	display_board(current_board, answer_board, dim, card1, card2)
 
 	check_cards_match(card1, card2, current_board, answer_board)
@@ -82,6 +114,9 @@ def flip_cards(current_board, answer_board, dim):
 
 
 def display_board(current_board, answer_board, dim, *squares):
+	""" Prints the board as it appears to the player.
+	Optionally takes in a list of cards to be revealed.
+	"""
 	print('\n')
 	for row in range(dim):
 		for col in range(dim):
@@ -91,7 +126,9 @@ def display_board(current_board, answer_board, dim, *squares):
 				print(current_board[row][col]),
 		print('\n')
 
+
 def print_intro_rules():
+	"""Prints the introduction and rules to Memory."""
 	print("\n\n=================")
 	print("WELCOME TO MEMORY")
 	print("=================\n")
@@ -104,6 +141,10 @@ def print_intro_rules():
 
 
 def init_board(dim):
+	"""
+	Creates two square boards--the answer board with the card values, and the current game
+	board displayed to the player--of a given dimension.
+	"""
 	card_vals = []
 	for i in range(65, 65 + (dim*dim) / 2):
 		card_vals.append(chr(i))
@@ -119,6 +160,9 @@ def init_board(dim):
 
 
 def prompt_dimension():
+	"""Prompts the user to enter a board dimension to create a square board.
+	The dimension must be an even integer within a certain range.
+	"""
 	print("\n\nBEFORE WE BEGIN... choose how large you want the board to be.")
 	print("\nThe game board is an n by n square.")
 	dimension = 0
@@ -135,6 +179,7 @@ def prompt_dimension():
 
 
 def main():
+	"""Runs one game of Memory until the game is won or the player quits."""
 	print_intro_rules()
 	dimension = prompt_dimension()
 	current_board, answer_board = init_board(dimension)
